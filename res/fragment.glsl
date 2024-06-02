@@ -1,16 +1,12 @@
 #version 410
 
-out vec4 out_color;
+in vec2 TexCoord;
+out vec4 FragColor;
 
-uniform vec2 _uniforme; // Vous pouvez mettre le type que vous voulez, et le nom que vous voulez
-uniform float _trans;
-
-
-// À mettre avant le main
-
-uniform sampler2D my_texture;
+uniform sampler2D myTexture;
 
 void main()
-{   
-    out_color = vec4(uv.x, uv.y, .0, 1.);
+{
+    
+    FragColor = texture(myTexture, TexCoord); // Display UV coordinates as colors
 }
