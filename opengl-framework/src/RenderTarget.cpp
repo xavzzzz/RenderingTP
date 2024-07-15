@@ -3,6 +3,7 @@
 #include "Texture.hpp"
 #include "handle_error.hpp"
 
+
 namespace gl {
 
 static auto attachment_type(InternalFormat_DepthStencil format) -> GLenum
@@ -20,6 +21,8 @@ static auto attachment_type(InternalFormat_DepthStencil format) -> GLenum
         return GL_DEPTH_STENCIL_ATTACHMENT;
     }
 }
+
+
 
 void RenderTarget::create_attachments(RenderTarget_Descriptor const& desc)
 {

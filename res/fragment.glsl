@@ -1,12 +1,13 @@
 #version 410
 
-in vec2 TexCoord;
 out vec4 FragColor;
+uniform vec3 light_direction;
+in vec3 normals;
 
 uniform sampler2D myTexture;
 
 void main()
 {
     
-    FragColor = texture(myTexture, TexCoord); // Display UV coordinates as colors
+    FragColor = vec4(normals, 1);
 }

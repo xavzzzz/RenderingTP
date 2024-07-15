@@ -2,6 +2,40 @@
 #include <glm/ext/matrix_clip_space.hpp>
 #include <iostream>
 #include <glm/ext/matrix_transform.hpp>
+#include "tiny_obj_loader.h"
+
+
+auto load_mesh(std::filesystem::path const& path) -> gl::Mesh
+{
+    // On lit le fichier avec tinyobj
+    auto reader = tinyobj::ObjReader{};
+    reader.ParseFromFile(gl::make_absolute_path(path).string(), {});
+
+    // On met tous les attributs dans un tableau
+    auto vertices = std::vector<float>{};
+    for (auto const& shape : reader.GetShapes())
+    {
+        for (auto const& idx : shape.mesh.indices)
+        {
+            vertices.push_back(reader.GetAttrib().vertices[3 * idx.vertex_index + 0]);
+            vertices.push_back(reader.GetAttrib().vertices[3 * idx.vertex_index + 1]);
+            vertices.push_back(reader.GetAttrib().vertices[3 * idx.vertex_index + 2]);
+
+            vertices.push_back(reader.GetAttrib().texcoords[2 * idx.texcoord_index + 0]);
+            vertices.push_back(reader.GetAttrib().texcoords[2 * idx.texcoord_index + 1]);
+
+            vertices.push_back(reader.GetAttrib().normals[3 * idx.normal_index + 0]);
+            vertices.push_back(reader.GetAttrib().normals[3 * idx.normal_index + 1]);
+            vertices.push_back(reader.GetAttrib().normals[3 * idx.normal_index + 2]);
+        };
+    }
+    return gl::Mesh{ {
+    .vertex_buffers = {{
+        .layout = {gl::VertexAttribute::Position3D{0}, gl::VertexAttribute::UV{1} ,gl::VertexAttribute::Normal3D{2}},
+        .data = vertices
+    }}
+} };
+}
 
 int main()
 {
@@ -57,7 +91,7 @@ int main()
     // Load the texture
     auto const texture = gl::Texture{
         gl::TextureSource::File{
-            .path = "res/texture.png",
+            .path = "res/fourareen2K_albedo.jpg",
             .flip_y = true,
             .texture_format = gl::InternalFormat::RGBA8,
         },
@@ -77,10 +111,13 @@ int main()
         shader.bind();
         shader.set_uniform("_view_projection", glm::infinitePerspective(glm::radians(45.f), gl::framebuffer_aspect_ratio(), 0.1f) * camera.view_matrix());
         shader.set_uniform("_transform", glm::translate(glm::rotate(glm::mat4{ 1.f }, gl::time_in_seconds(), glm::vec3{ 0.f, 0.f, 1.f }), glm::vec3{ 0.f, 1.f, 0.f }));
-
+        shader.set_uniform("light_direction", glm::vec3(0.2, 0.3, -1));
         shader.set_uniform("myTexture", texture);
 
-        cube_mesh.draw();
+        //cube_mesh.draw();
+
+        auto const boat = load_mesh("res/fourareen.obj");
+        boat.draw();
     }
 
     return 0;
